@@ -59,6 +59,16 @@ class Job extends Model
         return $query->where('type', $type);
     }
 
+    public function scopeSearch(Builder $query, ?string $search): Builder
+    {
+        if (!$search) return $query;
+
+        return $query->where(function ($q) use ($search) {
+            $q->where('title', 'ilike', "%{$search}%")
+                ->orWhere('description', 'ilike', "%{$search}%");
+        });
+    }
+
     public function isPublished(): bool
     {
         return $this->status === StatusJobEnum::PUBLISHED;
@@ -74,7 +84,7 @@ class Job extends Model
         return $this->status === StatusJobEnum::CLOSED;
     }
 
-    public function isOwnerBy(User $user): bool
+    public function isOwnedBy(User $user): bool
     {
         return $this->employer_id === $user->id;
     }
