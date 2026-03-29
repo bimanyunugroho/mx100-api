@@ -4,14 +4,17 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\DTOs\Auth\LoginDataDTO;
 use App\DTOs\Auth\RegisterDataDTO;
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Auth\LoginFormRequest;
 use App\Http\Requests\Api\V1\Auth\RegisterFormRequest;
 use App\Http\Resources\Api\V1\Auth\UserResource;
 use App\Services\Auth\AuthService;
 use App\Traits\ApiResponse;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Exception;
 
 class AuthController extends Controller
 {
@@ -23,50 +26,70 @@ class AuthController extends Controller
 
     public function register(RegisterFormRequest $request): JsonResponse
     {
-        $result = $this->authService->register(
-            RegisterDataDTO::from($request->validated()),
-        );
+        try {
+            $result = $this->authService->register(
+                RegisterDataDTO::from($request->validated()),
+            );
 
-        return $this->created([
-            'user'       => new UserResource($result['user']),
-            'token'      => $result['token'],
-            'token_type' => $result['token_type'],
-        ], 'Registrasi berhasil.');
+            return $this->created([
+                'user'       => new UserResource($result['user']),
+                'token'      => $result['token'],
+                'token_type' => $result['token_type'],
+            ], 'Registrasi berhasil.');
+        } catch (ApiException $e) {
+            return $this->error($e->getMessage(), $e->getStatusCode(), $e->getErrors());
+        }
     }
 
     public function login(LoginFormRequest $request): JsonResponse
     {
-        $result = $this->authService->login(
-            LoginDataDTO::from($request->validated()),
-        );
+        try {
+            $result = $this->authService->login(
+                LoginDataDTO::from($request->validated()),
+            );
 
-        return $this->ok([
-            'user'       => new UserResource($result['user']),
-            'token'      => $result['token'],
-            'token_type' => $result['token_type'],
-        ], 'Login berhasil.');
+            return $this->ok([
+                'user'       => new UserResource($result['user']),
+                'token'      => $result['token'],
+                'token_type' => $result['token_type'],
+            ], 'Login berhasil.');
+        } catch (ApiException $e) {
+            return $this->error($e->getMessage(), $e->getStatusCode(), $e->getErrors());
+        }
     }
 
     public function me(Request $request): JsonResponse
     {
-        return $this->ok([
-            'user' => new UserResource(
-                $this->authService->me($request->user()),
-            ),
-        ]);
+        try {
+            return $this->ok([
+                'user' => new UserResource(
+                    $this->authService->me($request->user()),
+                ),
+            ]);
+        } catch (ApiException $e) {
+            return $this->error($e->getMessage(), $e->getStatusCode(), $e->getErrors());
+        }
     }
 
     public function logout(Request $request): JsonResponse
     {
-        $this->authService->logout($request->user());
+        try {
+            $this->authService->logout($request->user());
 
-        return $this->noContent('Logout berhasil.');
+            return $this->noContent('Logout berhasil.');
+        } catch (ApiException $e) {
+            return $this->error($e->getMessage(), $e->getStatusCode(), $e->getErrors());
+        }
     }
 
     public function logoutAll(Request $request): JsonResponse
     {
-        $this->authService->logoutAll($request->user());
+        try {
+            $this->authService->logoutAll($request->user());
 
-        return $this->noContent('Logout dari semua perangkat berhasil.');
+            return $this->noContent('Logout dari semua perangkat berhasil.');
+        } catch (ApiException $e) {
+            return $this->error($e->getMessage(), $e->getStatusCode(), $e->getErrors());
+        }
     }
 }

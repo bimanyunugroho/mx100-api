@@ -37,8 +37,41 @@ class UserSeeder extends Seeder
         ]);
         $employer2->assignRole(RoleUserEnum::EMPLOYER);
 
+        $freelancer1 = User::create([
+            'name'              => 'Raden Puntodewo',
+            'email'             => 'puntodewo@gmail.com',
+            'password'          => Hash::make('puntodewo12345'),
+            'role'              => RoleUserEnum::FREELANCER,
+            'company_name'      => null,
+            'phone'             => '082345611111',
+            'email_verified_at' => now(),
+        ]);
+        $freelancer1->assignRole(RoleUserEnum::FREELANCER);
+
+        $freelancer2 = User::create([
+            'name'              => 'Raden Werkudoro',
+            'email'             => 'werkudoro@gmail.com',
+            'password'          => Hash::make('werkudoro12345'),
+            'role'              => RoleUserEnum::FREELANCER,
+            'company_name'      => null,
+            'phone'             => '082345622222',
+            'email_verified_at' => now(),
+        ]);
+        $freelancer2->assignRole(RoleUserEnum::FREELANCER);
+
+        $freelancer3 = User::create([
+            'name'              => 'Raden Janoko',
+            'email'             => 'janoko@gmail.com',
+            'password'          => Hash::make('janoko12345'),
+            'role'              => RoleUserEnum::FREELANCER,
+            'company_name'      => null,
+            'phone'             => '082345633333',
+            'email_verified_at' => now(),
+        ]);
+        $freelancer3->assignRole(RoleUserEnum::FREELANCER);
+
         // Random Employers — data dummy tambahan
-        /* Untuk employer sepertinya lebih mudah langsung pakai seeder untuk testing
+        /* Untuk employer dan freelancer sepertinya lebih mudah langsung pakai seeder untuk testing
         tapi kalau mau ingin random juga bisa di uncommenct script ini
 
          * User::factory()
@@ -47,13 +80,11 @@ class UserSeeder extends Seeder
             ->create()
             ->each(fn (User $user) => $user->assignRole(RoleUserEnum::EMPLOYER));
 
-         * */
-
-        // Random Freelancers
-        User::factory()
+        * User::factory()
             ->freelancer()
             ->count(5)
             ->create()
             ->each(fn (User $user) => $user->assignRole(RoleUserEnum::FREELANCER));
+         * */
     }
 }

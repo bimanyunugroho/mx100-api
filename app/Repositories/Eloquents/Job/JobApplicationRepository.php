@@ -25,20 +25,20 @@ class JobApplicationRepository implements JobApplicationRepositoryInterface
             ->exists();
     }
 
-    public function getByJob(Job $job, int $perPage = 15): LengthAwarePaginator
+    public function getByJob(Job $job, int $perPage = 10): LengthAwarePaginator
     {
         return $job->applications()
-            ->with('freelancer:id,name,email,phone')
+            ->with('freelancer')
             ->latest()
             ->paginate($perPage);
     }
 
-    public function getByFreelancer(User $freelancer, int $perPage = 15): LengthAwarePaginator
+    public function getByFreelancer(User $freelancer, int $perPage = 10): LengthAwarePaginator
     {
         return $freelancer->applications()
             ->with([
-                'job:id,title,status,employer_id,location,type',
-                'job.employer:id,name,company_name',
+                'job',
+                'employer',
             ])
             ->latest()
             ->paginate($perPage);
@@ -50,9 +50,9 @@ class JobApplicationRepository implements JobApplicationRepositoryInterface
             $query->where('employer_id', $employer->id);
         })
             ->with([
-                'freelancer:id,name,email,phone',
-                'job:id,title,employer_id',
+                'freelancer',
+                'job',
             ])
-            ->find($applicationId);
+            ->find($jobApplicationId);
     }
 }

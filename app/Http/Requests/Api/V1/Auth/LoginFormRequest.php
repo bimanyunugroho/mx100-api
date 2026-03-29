@@ -3,7 +3,10 @@
 namespace App\Http\Requests\Api\V1\Auth;
 
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Symfony\Component\HttpFoundation\Response;
 
 class LoginFormRequest extends FormRequest
 {
@@ -40,5 +43,16 @@ class LoginFormRequest extends FormRequest
             'token_name.string' => 'Nama token harus berupa teks.',
             'token_name.max'    => 'Nama token maksimal 100 karakter.',
         ];
+    }
+
+    protected function failedValidation(Validator $validator): void
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY)
+        );
     }
 }

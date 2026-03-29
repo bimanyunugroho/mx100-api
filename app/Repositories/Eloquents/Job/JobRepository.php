@@ -10,6 +10,7 @@ use App\Models\Job;
 use App\Models\User;
 use App\Repositories\Contracts\Job\JobRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class JobRepository implements JobRepositoryInterface
@@ -50,7 +51,7 @@ class JobRepository implements JobRepositoryInterface
         return (bool) $job->delete();
     }
 
-    public function getByEmployer(User $employer, int $perPage = 15): LengthAwarePaginator
+    public function getByEmployer(User $employer, int $perPage = 10): LengthAwarePaginator
     {
         return $employer->jobPostings()
             ->withCount('applications')
@@ -62,39 +63,39 @@ class JobRepository implements JobRepositoryInterface
     {
         $query = QueryBuilder::for(Job::class)
             ->published()
-            ->with('employer:id,name,company_name')
+            ->with('employer')
             ->withCount('applications')
-            ->allowedFilters([
+            ->allowedFilters(
                 AllowedFilter::scope('location'),
                 AllowedFilter::exact('type'),
-                AllowedFilter::scope('search'),
-            ])
-            ->allowedSorts([
+                AllowedFilter::scope('search')
+            )
+            ->allowedSorts(
                 'published_at',
                 'created_at',
-                'title',
-            ])
+                'title'
+            )
             ->defaultSort('-published_at');
 
-        if ($filter->search) {
-            $query->search($filter->search);
+        if (!empty($jobFilterDataDTO->search)) {
+            $query->search($jobFilterDataDTO->search);
         }
 
-        if ($filter->location) {
-            $query->location($filter->location);
+        if (!empty($jobFilterDataDTO->location)) {
+            $query->location($jobFilterDataDTO->location);
         }
 
-        if ($filter->type) {
-            $query->ofType($filter->type->value);
+        if ($jobFilterDataDTO->type?->value) {
+            $query->ofType($jobFilterDataDTO->type->value);
         }
 
-        return $query->paginate($filter->per_page);
+        return $query->paginate($jobFilterDataDTO->per_page);
     }
 
     public function findPublished(string $id): ?Job
     {
         return Job::published()
-            ->with('employer:id,name,company_name')
+            ->with('employer')
             ->find($id);
     }
 

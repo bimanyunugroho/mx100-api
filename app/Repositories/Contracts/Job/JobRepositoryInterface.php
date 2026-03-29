@@ -17,7 +17,7 @@ interface JobRepositoryInterface
 
     public function delete(Job $job): bool;
 
-    public function getByEmployer(User $employer, int $perPage = 15): LengthAwarePaginator;
+    public function getByEmployer(User $employer, int $perPage = 10): LengthAwarePaginator;
 
     public function getPublished(JobFilterDataDTO $jobFilterDataDTO): LengthAwarePaginator;
 

@@ -44,7 +44,8 @@ class JobApplicationService
 
         if (!$job->isApplicable()) {
             throw new UnprocessableException(
-                'Lowongan Pekerjaan ini tidak dapat dilamar. Hanya Lowongan Pekerjaan dengan status published yang bisa dilamar.'
+                'Data tidak valid',
+                ['status' => ['Lowongan Pekerjaan ini tidak dapat dilamar. Hanya Lowongan Pekerjaan dengan status published yang bisa dilamar.']]
             );
         }
 
@@ -73,7 +74,7 @@ class JobApplicationService
             throw $e;
         }
 
-        return $application->load(['job:id,title,employer_id', 'job.employer:id,name,company_name']);
+        return $application->load(['job', 'employer']);
     }
 
     /**
@@ -121,11 +122,6 @@ class JobApplicationService
         $fullPath = $this->fileUploadService->getCvPath($application->cv_path);
 
         if (!$fullPath) {
-            Log::error('CV file tidak ada di storage', [
-                'application_id' => $applicationId,
-                'cv_path'        => $application->cv_path,
-            ]);
-
             throw new NotFoundException('File CV Tidak Ditemukan');
         }
 

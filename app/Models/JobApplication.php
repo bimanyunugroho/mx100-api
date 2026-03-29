@@ -58,4 +58,9 @@ class JobApplication extends Model
         return $this->belongsTo(User::class, 'freelancer_id');
     }
 
+    public function employer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'employer_id');
+    }
+
 }

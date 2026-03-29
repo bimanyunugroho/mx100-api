@@ -28,7 +28,7 @@ class AuthService
     {
         if ($registerDataDTO->role === RoleUserEnum::EMPLOYER && empty($registerDataDTO->company_name)) {
             throw new UnprocessableException(
-                'Nama Perusahaan wajib diisi untuk role employer.',
+                'Data tidak valid',
                 ['company_name' => ['Nama Perusahaan wajib diisi untuk role employer.']]
             );
         }
@@ -56,7 +56,7 @@ class AuthService
     {
         $user = $this->authRepository->login($loginDataDTO);
 
-        if (! $user) {
+        if (!$user) {
             throw new InvalidCredentialsException();
         }
 

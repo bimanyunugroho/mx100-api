@@ -13,6 +13,7 @@ use App\Models\Job;
 use App\Models\User;
 use App\Repositories\Contracts\Job\JobRepositoryInterface;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class JobService
 {
@@ -31,7 +32,8 @@ class JobService
     {
         if ($createJobDataDTO->status === StatusJobEnum::CLOSED) {
             throw new UnprocessableException(
-                'Lowongan Pekerjaan ini tidak bisa dibuat langsung dengan status closed.'
+                'Data tidak valid',
+                ['status' => ['Lowongan Pekerjaan ini tidak bisa dibuat langsung dengan status closed.']]
             );
         }
 
@@ -71,7 +73,8 @@ class JobService
         // job closed tidak bisa di-reopen via update biasa
         if ($job->isClosed() && $updateJobDataDTO->status !== StatusJobEnum::CLOSED) {
             throw new UnprocessableException(
-                'Lowongan Pekerjaan yang sudah closed tidak bisa diubah statusnya kembali.'
+                'Data tidak valid',
+                ['status' => ['Lowongan Pekerjaan yang sudah closed tidak bisa diubah statusnya kembali.']]
             );
         }
 
@@ -102,8 +105,8 @@ class JobService
         // hanya draft yang boleh dihapus
         if (!$job->isDraft()) {
             throw new UnprocessableException(
-                'Hanya Lowongan Pekerjaan yang berstatus draft yang dapat dihapus. '
-                . 'Ubah status ke closed terlebih dahulu.'
+                'Data tidak valid',
+                ['status' => ['Hanya Lowongan Pekerjaan yang berstatus draft yang dapat dihapus.']]
             );
         }
 
@@ -113,7 +116,7 @@ class JobService
     /**
      * Ambil semua job milik employer (semua status) + paginated.
      */
-    public function getEmployerJobs(User $employer, int $perPage = 15): LengthAwarePaginator
+    public function getEmployerJobs(User $employer, int $perPage = 10): LengthAwarePaginator
     {
         return $this->jobRepository->getByEmployer($employer, $perPage);
     }

@@ -4,9 +4,12 @@ namespace App\Http\Requests\Api\V1\Auth;
 
 use App\Enums\RoleUserEnum;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Symfony\Component\HttpFoundation\Response;
 
 class RegisterFormRequest extends FormRequest
 {
@@ -46,6 +49,7 @@ class RegisterFormRequest extends FormRequest
             'email.email'    => 'Format email tidak sesuai standar RFC/DNS.',
             'email.max'      => 'Email maksimal 100 karakter.',
             'email.unique'   => 'Email sudah terdaftar.',
+            'password.min'   => 'Password minimal 8 karakter.',
             'password.required'  => 'Password wajib diisi.',
             'password.confirmed' => 'Konfirmasi password tidak sesuai.',
             'role.required' => 'Peran pengguna wajib diisi.',
@@ -56,7 +60,18 @@ class RegisterFormRequest extends FormRequest
             'phone.string' => 'Nomor telepon harus berupa teks.',
             'phone.min'    => 'Nomor telepon minimal 11 karakter.',
             'phone.max'    => 'Nomor telepon maksimal 13 karakter.',
-            'phone.regex'  => 'Nomor telepon hanya boleh berisi angka dan tanda "+".',
+            'phone.regex'  => 'Nomor telepon hanya boleh berisi angka dan tanda +.',
         ];
+    }
+
+    protected function failedValidation(Validator $validator): void
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY)
+        );
     }
 }
