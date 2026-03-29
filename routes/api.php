@@ -6,16 +6,19 @@ use App\Http\Controllers\Api\V1\Job\EmployerJobController;
 use App\Http\Controllers\Api\V1\Job\EmployerJobApplicationController;
 use App\Http\Controllers\Api\V1\Job\FreelanceJobController;
 use App\Http\Controllers\Api\V1\Job\FreelanceJobApplicationController;
+use App\Http\Middleware\RateLimitingMiddleware;
 
 Route::prefix('v1')->group(function () {
 
-    Route::prefix('auth')->group(function () {
+    Route::prefix('auth')
+        ->middleware([RateLimitingMiddleware::class . ':auth'])
+        ->group(function () {
         Route::post('register', [AuthController::class, 'register'])->name('api.v1.auth.register');
         Route::post('login', [AuthController::class, 'login'])->name('api.v1.auth.login');
     });
 
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', RateLimitingMiddleware::class . ':api'])->group(function () {
 
         Route::prefix('auth')->group(function () {
             Route::get('me', [AuthController::class, 'me'])->name('api.v1.auth.me');
